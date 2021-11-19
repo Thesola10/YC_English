@@ -2,7 +2,8 @@
 
 DIR=$(realpath $(dirname $0))
 
-mkdir -p $DIR/work/Data/StreamingAssets/scrpt.cpk.contents
+mkdir -p $DIR/work/Data/StreamingAssets/scrpt.cpk.contents \
+         $DIR/out/Data/StreamingAssets
 
 for file in $DIR/patches/Data/StreamingAssets/scrpt.cpk/*.json
 do
@@ -12,7 +13,7 @@ done
 
 wine $DIR/3rdparty/cpkmakec.exe \
         Z:$DIR/work/Data/StreamingAssets/scrpt.cpk.contents \
-        Z:$DIR/work/Data/StreamingAssets/scrpt.cpk  \
+        Z:$DIR/out/Data/StreamingAssets/scrpt.cpk  \
         -mode=FILENAME                              \
         -code=UTF-8                                 \
         -align=2048
