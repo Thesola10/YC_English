@@ -2,11 +2,19 @@
 
 DIR=$(realpath $(dirname $0))
 
-mkdir -p $DIR/work/Data/StreamingAssets
+mkdir -p $DIR/work/Data/StreamingAssets/scrpt.cpk.contents
+
+for file in $DIR/patches/Data/StreamingAssets/scrpt.cpk/*.json
+do
+    echo "Encoding $(basename $file)"
+    python3 $DIR/inucode.py $file > $DIR/work/Data/StreamingAssets/scrpt.cpk.contents/$(basename $file | head -c-6)
+done
 
 wine $DIR/3rdparty/cpkmakec.exe \
-        Z:$DIR/patches/StreamingAssets/scrpt.cpk    \
+        Z:$DIR/work/Data/StreamingAssets/scrpt.cpk.contents \
         Z:$DIR/work/Data/StreamingAssets/scrpt.cpk  \
         -mode=FILENAME                              \
         -code=UTF-8                                 \
         -align=2048
+
+rm -rf $DIR/work/Data/StreamingAssets/scrpt.cpk.contents
