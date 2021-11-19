@@ -1,0 +1,262 @@
+# CRI CPK archives (script 0.2.2)
+#   derived from cpk_unpack of hcs (http://hcs64.com/vgm_ripping.html)
+# script for QuickBMS http://quickbms.aluigi.org
+
+quickbmsver 0.3.12
+endian big
+comtype cpk
+
+idstring "CPK "
+
+set query->offset long 0
+set query->index long 0
+set query->name string "TocOffset"
+callfunction query_utf 1
+set toc_offset long UTF_VALUE
+
+set query->offset long 0
+set query->index long 0
+set query->name string "ContentOffset"
+callfunction query_utf 1
+set content_offset long UTF_VALUE
+
+set query->offset long 0
+set query->index long 0
+set query->name string "Files"
+callfunction query_utf 1
+set CpkHeader_count long UTF_VALUE
+
+goto toc_offset
+getdstring signature 4
+if signature != "TOC "
+    print "TOC signature not found"
+    cleanexit
+endif
+
+set query->offset long toc_offset
+set query->index long 0
+set query->name string ""
+callfunction query_utf 1
+set CpkHeader_count long UTF_VALUE
+set toc_entries long table_info.rows    # it remains saved after the call
+
+if content_offset < 0           # "if" can't be unsigned
+    set add_offset long toc_offset
+elif toc_offset < 0
+    set add_offset long content_offset
+elif content_offset < toc_offset
+    set add_offset long content_offset
+else
+    set add_offset long toc_offset
+endif
+
+for mytoc = 0 < toc_entries
+    set query->offset long toc_offset
+    set query->index long mytoc
+    set query->name string "DirName"
+    callfunction query_utf 1
+    set file_name string UTF_VALUE
+
+    set query->offset long toc_offset
+    set query->index long mytoc
+    set query->name string "FileName"
+    callfunction query_utf 1
+    set file_name2 string UTF_VALUE
+
+    string file_name += /
+    string file_name += file_name2
+
+    set query->offset long toc_offset
+    set query->index long mytoc
+    set query->name string "FileSize"
+    callfunction query_utf 1
+    set file_size long UTF_VALUE
+
+    set query->offset long toc_offset
+    set query->index long mytoc
+    set query->name string "ExtractSize"
+    callfunction query_utf 1
+    set extract_size long UTF_VALUE
+
+    set query->offset long toc_offset
+    set query->index long mytoc
+    set query->name string "FileOffset"
+    callfunction query_utf 1
+    set file_offset long UTF_VALUE
+
+    math file_offset += add_offset
+    if extract_size > file_size
+        clog file_name file_offset file_size extract_size
+    else
+        log file_name file_offset file_size
+    endif
+next mytoc
+
+
+
+startfunction query_utf
+    set COLUMN_STORAGE_MASK        long 0xf0
+    set COLUMN_STORAGE_PERROW      long 0x50
+    set COLUMN_STORAGE_CONSTANT    long 0x30
+    set COLUMN_STORAGE_ZERO        long 0x10
+    set COLUMN_TYPE_MASK           long 0x0f
+    set COLUMN_TYPE_DATA           long 0x0b
+    set COLUMN_TYPE_STRING         long 0x0a
+    set COLUMN_TYPE_FLOAT          long 0x08
+    set COLUMN_TYPE_8BYTE2         long 0x07
+    set COLUMN_TYPE_8BYTE          long 0x06
+    set COLUMN_TYPE_4BYTE2         long 0x05
+    set COLUMN_TYPE_4BYTE          long 0x04
+    set COLUMN_TYPE_2BYTE2         long 0x03
+    set COLUMN_TYPE_2BYTE          long 0x02
+    set COLUMN_TYPE_1BYTE2         long 0x01
+    set COLUMN_TYPE_1BYTE          long 0x00
+
+    set UTF_VALUE string ""
+    math offset = query->offset
+    math offset += 0x10     # needed by the tool
+    goto offset
+
+    set table_info.table_offset long offset
+    getdstring UTF_signature 4
+    if UTF_signature != "@UTF"
+        print "not a @UTF table at %offset%"
+        cleanexit
+    endif
+    get table_info.table_size long
+    set table_info.schema_offset long 0x20
+    get table_info.rows_offset long
+    get table_info.string_table_offset long
+    get table_info.data_offset long
+    get table_name_string long
+    get table_info.columns short
+    get table_info.row_width short
+    get table_info.rows long
+
+    for i = 0 < table_info.columns
+        get schema.type byte
+        get schema.column_name long
+        putarray 0 i schema.type
+        putarray 1 i schema.column_name
+        putarray 2 i -1     # schema.constant_offset
+
+        math TMP = schema.type
+        math TMP &= COLUMN_STORAGE_MASK
+        if TMP == COLUMN_STORAGE_CONSTANT
+            savepos schema.constant_offset
+            putarray 2 i schema.constant_offset
+
+            math TMP = schema.type
+            math TMP &= COLUMN_TYPE_MASK
+            if TMP == COLUMN_TYPE_STRING
+                getdstring DUMMY 4
+            elif TMP == COLUMN_TYPE_DATA
+                getdstring DUMMY 8
+            elif TMP == COLUMN_TYPE_FLOAT
+                getdstring DUMMY 4
+            elif TMP == COLUMN_TYPE_8BYTE2
+                getdstring DUMMY 8
+            elif TMP == COLUMN_TYPE_8BYTE
+                getdstring DUMMY 8
+            elif TMP == COLUMN_TYPE_4BYTE2
+                getdstring DUMMY 4
+            elif TMP == COLUMN_TYPE_4BYTE
+                getdstring DUMMY 4
+            elif TMP == COLUMN_TYPE_2BYTE2
+                getdstring DUMMY 2
+            elif TMP == COLUMN_TYPE_2BYTE
+                getdstring DUMMY 2
+            elif TMP == COLUMN_TYPE_1BYTE2
+                getdstring DUMMY 1
+            elif TMP == COLUMN_TYPE_1BYTE
+                getdstring DUMMY 1
+            else
+                print "unknown type for constant"
+                cleanexit
+            endif
+        endif
+    next i
+
+    math TMP = table_info.string_table_offset
+    math TMP += 8
+    math TMP += offset
+    math string_table_size = table_info.data_offset
+    math string_table_size -= table_info.string_table_offset
+    log MEMORY_FILE TMP string_table_size
+
+    for i = query->index < table_info.rows
+        math TMP = i
+        math TMP *= table_info.row_width
+        math row_offset = table_info.table_offset
+        math row_offset += 8
+        math row_offset += table_info.rows_offset
+        math row_offset += TMP
+
+        for j = 0 < table_info.columns
+            getarray type 0 j
+            getarray column_name 1 j
+            getarray constant_offset 2 j
+
+            if constant_offset >= 0
+                math data_offset = constant_offset
+            else
+                math data_offset = row_offset
+            endif
+
+            math TMP = type
+            math TMP &= COLUMN_STORAGE_MASK
+            if TMP == COLUMN_STORAGE_ZERO
+                set value long 0
+            else
+                goto data_offset
+                math TMP = type
+                math TMP &= COLUMN_TYPE_MASK
+                if TMP == COLUMN_TYPE_STRING
+                    get string_offset long
+                    goto string_offset MEMORY_FILE
+                    get value string MEMORY_FILE
+                elif TMP == COLUMN_TYPE_DATA
+                    get vardata_offset long
+                    get vardata_size long
+                    goto vardata_offset MEMORY_FILE
+                    getdstring value vardata_size MEMORY_FILE
+                elif TMP == COLUMN_TYPE_FLOAT
+                    get value long
+                elif TMP == COLUMN_TYPE_8BYTE2
+                    get DUMMY long  # no 64 bit support!
+                    get value long
+                elif TMP == COLUMN_TYPE_8BYTE
+                    get DUMMY long  # no 64 bit support!
+                    get value long
+                elif TMP == COLUMN_TYPE_4BYTE2
+                    get value long
+                elif TMP == COLUMN_TYPE_4BYTE
+                    get value long
+                elif TMP == COLUMN_TYPE_2BYTE2
+                    get value short
+                elif TMP == COLUMN_TYPE_2BYTE
+                    get value short
+                elif TMP == COLUMN_TYPE_1BYTE2
+                    get value byte
+                elif TMP == COLUMN_TYPE_1BYTE
+                    get value byte
+                else
+                    print "unknown normal type"
+                    cleanexit
+                endif
+
+                if constant_offset < 0
+                    savepos row_offset  # row_offset += bytes_read
+                endif
+            endif
+
+            goto column_name MEMORY_FILE
+            get column_name string MEMORY_FILE
+            if column_name == query->name
+                set UTF_VALUE string value  # result.value.value (qthis)
+                math i = table_info.rows    # break
+                math j = table_info.columns # break
+            endif
+        next j
+    next i
+endfunction
