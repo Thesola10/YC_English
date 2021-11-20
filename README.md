@@ -72,3 +72,8 @@ process as much as I could without sharing copyrighted data.
 _(of course, if you were to look for it, I'm sure someone out there will end up redistributing pre-patched files, but that's illegal so I can't condone this.)_
 
 
+## Special thanks
+
+- [@SciresM](https://github.com/SciresM) for `hactool`, without which none of this would have been possible
+- Joseph John and the [UnityPy](https://github.com/K0lb3/UnityPy) contributors
+- MAGES for the game
