@@ -16,13 +16,14 @@ def patch_mbehaviours(patchdir: str, assetdir: str):
             print(f"##### Patching {dpath}:")
             env = U.load(dpath)
             count = 0
-            for prt, pdr, pfi in os.walk(ppath):
-                idx = int(pfi[:-5])
-                pfipath = os.path.join(prt, pfi)
-                with open(pfipath) as pfile:
-                    newtree = json.load(pfile)
-                    env.objects[idx].save_typetree(newtree)
-                    count += 1
+            for prt, pdr, pfis in os.walk(ppath):
+                for pfi in pfis:
+                    idx = int(pfi[:-5])
+                    pfipath = os.path.join(prt, pfi)
+                    with open(pfipath) as pfile:
+                        newtree = json.load(pfile)
+                        env.objects[idx].save_typetree(newtree)
+                        count += 1
             print(f"##### Replaced {count} MonoBehaviours")
 
 
