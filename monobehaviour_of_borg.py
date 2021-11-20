@@ -6,14 +6,18 @@ import os
 import json
 import UnityPy as U
 
-def patch_mbehaviours(patchdir: str, assetdir: str):
+def patch_mbehaviours(patchdir: str, assetdir: str, outdir: str):
     for root, dirs, files in os.walk(assetdir):
         for f in files:
             if (f[-8:] != ".unity3d"
                 and f[:-1] != "level"): continue
+            patched = False
+
             dpath = os.path.join(root, f)
             ppath = os.path.join(root.replace(assetdir, patchdir), f)
-            print(f"##### Patching {dpath}:")
+            opath = os.path.join(root.replace(assetdir, outdir), f)
+
+            os.makedirs(root.replace(assetdir, outdir), exist_ok=True)
             env = U.load(dpath)
             count = 0
             for prt, pdr, pfis in os.walk(ppath):
@@ -24,11 +28,17 @@ def patch_mbehaviours(patchdir: str, assetdir: str):
                         newtree = json.load(pfile)
                         env.objects[idx].save_typetree(newtree)
                         count += 1
-            print(f"##### Replaced {count} MonoBehaviours")
+                    patched = True
+
+            if (patched):
+                print(f"##### Patch: {dpath} => {opath}")
+                with open(opath, "wb+") as ofile:
+                    ofile.write(env.file.save())
+                print(f"##### Replaced {count} MonoBehaviours")
 
 
 def main():
-    patch_mbehaviours("./patches", "./work")
+    patch_mbehaviours("./patches", "./work", "./out")
 
 if __name__ == "__main__":
     main()
