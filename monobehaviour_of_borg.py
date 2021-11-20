@@ -3,37 +3,31 @@
 # Scans through a Unity assets dir and dumps all MonoBehaviour
 
 import os
+import json
 import UnityPy as U
 
-def map_mbehaviours(do, where: str):
-    for root, dirs, files in os.walk(where):
+def patch_mbehaviours(patchdir: str, assetdir: str):
+    for root, dirs, files in os.walk(assetdir):
         for f in files:
-            fpath = os.path.join(root, f)
-            print(f"##### In {fpath}:")
-            env = U.load(fpath)
-            scanned = 0
-            matched = 0
-            for obj in env.objects:
-                if obj.type.name == "MonoBehaviour" and obj.serialized_type.nodes:
-                    try:
-                        tree = do(obj.read_typetree())
-                        #obj.save_typetree(tree)
-                        matched += 1
-                    except:
-                        pass # oh no
-                    scanned += 1
-            print(f"##### Found {scanned} MonoBehaviours, matched {matched}.")
+            if (f[-8:] != ".unity3d"
+                and f[:-1] != "level"): continue
+            dpath = os.path.join(root, f)
+            ppath = os.path.join(root.replace(assetdir, patchdir), f)
+            print(f"##### Patching {dpath}:")
+            env = U.load(dpath)
+            count = 0
+            for prt, pdr, pfi in os.walk(ppath):
+                idx = int(pfi[:-5])
+                pfipath = os.path.join(prt, pfi)
+                with open(pfipath) as pfile:
+                    newtree = json.load(pfile)
+                    env.objects[idx].save_typetree(newtree)
+                    count += 1
+            print(f"##### Replaced {count} MonoBehaviours")
 
-def ttree_print_mText(tree):
-    print(f"m_Text: {tree['m_Text']}")
-
-def ttree_print_omakeTitle(tree):
-    for page in tree['pages']:
-        for item in page['items']:
-            print(f"omakeTitle: {item['title']}")
 
 def main():
-    map_mbehaviours(ttree_print_omakeTitle, "./romfs/Data")
+    patch_mbehaviours("./patches", "./work")
 
 if __name__ == "__main__":
     main()
