@@ -69,6 +69,6 @@ I apologize if the instructions seem a bit messy, I tried automating and streaml
 process as much as I could without sharing copyrighted data.
 
 
-_(of course, if you were to look for it, I'm sure someone out there is redistributing pre-patched files, but that's illegal so I can't condone this.)_
+_(of course, if you were to look for it, I'm sure someone out there will end up redistributing pre-patched files, but that's illegal so I can't condone this.)_
 
 
