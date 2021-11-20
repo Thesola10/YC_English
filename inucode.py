@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Inucode (c) Karim Vergnes <me@thesola.io>
 # it's just a XOR cipher with exact-match policy.
+# thx Joseph John
 
 import sys
 
