@@ -17,12 +17,15 @@ def patch_mbehaviours(patchdir: str, assetdir: str, outdir: str):
             ppath = os.path.join(root.replace(assetdir, patchdir), f)
             opath = os.path.join(root.replace(assetdir, outdir), f)
 
+            print(f"##### Looking up patches for {dpath}")
+
             os.makedirs(root.replace(assetdir, outdir), exist_ok=True)
             env = U.load(dpath)
             count = 0
             for prt, pdr, pfis in os.walk(ppath):
                 for pfi in pfis:
                     idx = int(pfi[:-5])
+                    print(f"Patching object {idx}")
                     pfipath = os.path.join(prt, pfi)
                     with open(pfipath) as pfile:
                         newtree = json.load(pfile)
@@ -31,14 +34,14 @@ def patch_mbehaviours(patchdir: str, assetdir: str, outdir: str):
                     patched = True
 
             if (patched):
-                print(f"##### Patch: {dpath} => {opath}")
+                print(f" => {opath}")
                 with open(opath, "wb+") as ofile:
                     ofile.write(env.file.save())
                 print(f"##### Replaced {count} MonoBehaviours")
 
 
 def main():
-    patch_mbehaviours("./patches", "./work", "./out")
+    patch_mbehaviours("./patches", "./work", "./out/contents/0100D12014FC200/romfs")
 
 if __name__ == "__main__":
     main()
