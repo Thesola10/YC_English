@@ -24,8 +24,9 @@ formatted for this purpose. (You don't need to do _everything_ to file a pull re
 
 The scripts provided in this repository were written for Linux, but may work under MinGW with changes.
 
+### Dialogue
 <details>
-<summary>Game translation</summary>
+<summary>Instructions</summary>
 This represents translations for the actual visual novel. Menus and certain UI elements will not be translated.
 
 To build the game translation package, you will need:
@@ -39,8 +40,9 @@ Simply run the following command, and a modified `scrpt.cpk` will be produced:
 ```
 </details>
 
+### Menus (Requires original game files)
 <details>
-<summary>Menus (WIP, requires original game files)</summary>
+<summary>Instructions</summary>
 This represents translations for the user interface components, basically everything that isn't directly
 story dialogue.
 
