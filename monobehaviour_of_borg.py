@@ -26,8 +26,7 @@ def patch_one_file(objsByID, infile: str, patchroot: str, patches: list, outfile
 def patch_mbehaviours(patchdir: str, assetdir: str, outdir: str):
     for root, dirs, files in os.walk(assetdir):
         for f in files:
-            if (f[-8:] != ".unity3d"
-                and f[:-1] != "level"): continue
+            if (f[-8:] != ".unity3d" and f[:-1] != "level"): continue
             patched = False
 
             ipath = os.path.join(root, f)
