@@ -22,7 +22,7 @@ formatted for this purpose. (You don't need to do _everything_ to file a pull re
 
 ## Okay, how do I patch?
 
-The scripts provided in this repository were written for Linux, but may work under MinGW with changes.
+The scripts provided in this repository exist in both Linux/UNIX and Windows versions.
 
 ### Dialogue
 <details>
@@ -31,12 +31,19 @@ This represents translations for the actual visual novel. Menus and certain UI e
 
 To build the game translation package, you will need:
 - Python 3 (for `inucode.py`)
-- Wine (for `cpkmakec.exe`)
-
+- Wine (for `cpkmakec.exe` on Linux)
+- .NET Framework 3.5 (for `cpkmakec.exe` on Windows)
+  
 Simply run the following command, and a modified `scrpt.cpk` will be produced:
 
 ```sh
+# On Linux
 ./repack_scrpt.cpk.sh
+```
+  
+```pwsh
+# On Windows
+.\repack_scrpt.cpk.ps1
 ```
 </details>
 
@@ -48,20 +55,32 @@ story dialogue.
 
 To build the menu translation patch, you will need:
 - Python 3 (for `monobehaviour_of_borg.py`) with `UnityPy` (run `pip install UnityPy`)
-- SciresM's [`hactool`](https://github.com/SciresM/hactool) for extracting game files
+- SciresM's [`hactool`](https://github.com/SciresM/hactool) for extracting game files (on Windows, place the executable in the `3rdparty` folder)
 - The original game ROM, in `.nsp` format
 - Your console's cryptographic keys in the `$HOME/.switch` directory
 
 #### Extracting game files
 
 ```sh
+# On Linux
 ./extract_nsp.sh path/to/your/yurucamp/rom.nsp
+```
+  
+```pwsh
+# On Windows
+.\extract_nsp.ps1 path\to\your\yurucamp\rom.nsp
 ```
 
 #### Patching game files
 
 ```sh
+# On Linux
 ./monobehaviour_of_borg.py
+```
+  
+```pwsh
+# On Windows
+python3 .\monobehaviour_of_borg.py
 ```
 </details>
 
