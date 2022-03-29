@@ -16,7 +16,8 @@ def repeated_key_xor(key):
             continue
         else:
             encoded.append(pt[i] ^ key[i % len_key])
-    return bytes(encoded)
+    with open(sys.argv[2], "wb+") as out:
+        out.write(bytes(encoded))
 
 if __name__ == "__main__":
-    sys.stdout.buffer.write(repeated_key_xor(b'hogehoge66'))
+    repeated_key_xor(b'hogehoge66')
