@@ -6,7 +6,7 @@ md .\work
 
 .\3rdparty\hactool.exe -x $args[0] --pfs0dir=.\work -t pfs0
 .\3rdparty\hactool.exe -x .\work\97105c79474118d294c8808a22f39bd3.nca `
-    --titlekey=$(Format-Hex -Path .\work\0100d12014fc2000000000000000000b.tik -Count 16 -Offset 0x180) `
+    --titlekey=$(((Get-Content .\work\0100d12014fc2000000000000000000b.tik -Encoding byte)[0x180..(0x180+16)] | ForEach-Object ToString X2) -join '' ) `
     --romfsdir=.\work
 
 Remove-Item .\work\*.nca .\work\*.tik .\work\*.cert
