@@ -1,7 +1,7 @@
 md -p   .\work\Data\StreamingAssets\scrpt.cpk.contents
 md -p   .\out\contents\0100D12014FC200\romfs\Data\StreamingAssets
 
-.\inucode.py
+python3 .\inucode.py
 
 .\3rdparty\cpkmakec.exe `
     .\work\Data\StreamingAssets\scrpt.cpk.contents `
