@@ -50,7 +50,7 @@ def patch_mbehaviours(patchdir: str, assetdir: str, outdir: str):
 
 
 def main():
-    patch_mbehaviours("./patches", "./work", "./out/contents/0100D12014FC200/romfs")
+    patch_mbehaviours("./patches", "./work", "./out/contents/0100D12014FC2000/romfs")
 
 if __name__ == "__main__":
     main()
