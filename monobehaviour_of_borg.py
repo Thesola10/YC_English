@@ -32,7 +32,7 @@ def patch_one_file(objsByID, infile: str, patchroot: str, patches: list, outfile
     return patched
 
 
-def patch_mbehaviour_one_step(arg: str):
+def patch_mbehaviour_one_step(arg: dict):
     f = arg["f"]
     root = arg["root"]
     patchdir = arg["patch"]
