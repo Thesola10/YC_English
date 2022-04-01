@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# cython: language_level=3
 # Inucode (c) Karim Vergnes <me@thesola.io>
 # it's just a XOR cipher with exact-match policy.
 # thx Joseph John
@@ -30,15 +31,24 @@ def repeated_key_xor(infile, outfile, key):
         out.write(bytes(encoded))
     inf.close()
 
-mydir = os.path.dirname(__file__)
-patchdir = os.path.join(mydir, "patches", "Data", "StreamingAssets", "scrpt.cpk")
-outdir = os.path.join(mydir, "work", "Data", "StreamingAssets", "scrpt.cpk.contents")
+mydir = os.path.dirname(sys.argv[0])
+patchdir = os.path.join(mydir, "patches"
+                        , "Data"
+                        , "StreamingAssets"
+                        , "scrpt.cpk"
+                        )
+outdir = os.path.join(mydir, "work"
+                        , "Data"
+                        , "StreamingAssets"
+                        , "scrpt.cpk.contents"
+                        )
 patches = os.listdir(patchdir)
 
 def patch_one_file(f):
     repeated_key_xor( os.path.join(patchdir, f)
                     , os.path.join(outdir,os.path.splitext(f)[0])
-                    , b'hogehoge66')
+                    , b'hogehoge66'
+                    )
 
 if __name__ == '__main__':
     parallel(patch_one_file, patches)
