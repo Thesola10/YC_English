@@ -6,7 +6,7 @@
 import os
 import re
 import json
-import UnityPy as U
+import UnityPy
 
 def parallel(fun, ls):
     try:
@@ -48,7 +48,7 @@ def patch_mbehaviour_one_step(arg: dict):
     #print(f"##### Looking up patches for {ipath}")
 
     os.makedirs(root.replace(assetdir, outdir), exist_ok=True)
-    env = U.load(ipath)
+    env = UnityPy.load(ipath)
     objsByID = { obj.path_id : obj for obj in env.objects }
     for prt, pdr, pfis in os.walk(ppath):
         patched = patched or patch_one_file(objsByID, ipath, prt, pfis, opath)

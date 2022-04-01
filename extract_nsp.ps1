@@ -8,7 +8,7 @@ $TitleKey = (Get-Content .\work\0100d12014fc2000000000000000000b.tik -Encoding b
 
 .\3rdparty\hactool.exe -x $args[0] --pfs0dir=.\work -t pfs0
 .\3rdparty\hactool.exe -x .\work\97105c79474118d294c8808a22f39bd3.nca   `
-    --titlekey=$($TitleKey | ForEach-Object ToString x2) -join '' )     `
+    --titlekey=$(($TitleKey | ForEach-Object ToString x2) -join '' )    `
     --romfsdir=.\work
 
 Remove-Item .\work\*.nca
