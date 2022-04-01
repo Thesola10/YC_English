@@ -6,18 +6,13 @@
 import os
 import sys
 
-try:
-    from p_tqdm import p_umap
-except:
-    def p_umap(f, l): map(f, l)
-
 def parallel(fun, ls):
     try:
         from p_tqdm import p_umap
         return p_umap(fun, ls)
     except:
         import multiprocessing
-        multiprocessing.Pool().map(fun, ls)
+        return multiprocessing.Pool().map(fun, ls)
 
 def repeated_key_xor(infile, outfile, key):
     inf = open(infile, "rb+")
@@ -35,13 +30,15 @@ def repeated_key_xor(infile, outfile, key):
         out.write(bytes(encoded))
     inf.close()
 
-if __name__ == "__main__":
-    mydir = os.path.dirname(__file__)
-    patchdir = os.path.join(mydir, "patches", "Data", "StreamingAssets", "scrpt.cpk")
-    outdir = os.path.join(mydir, "work", "Data", "StreamingAssets", "scrpt.cpk.contents")
-    patches = os.listdir(patchdir)
+mydir = os.path.dirname(__file__)
+patchdir = os.path.join(mydir, "patches", "Data", "StreamingAssets", "scrpt.cpk")
+outdir = os.path.join(mydir, "work", "Data", "StreamingAssets", "scrpt.cpk.contents")
+patches = os.listdir(patchdir)
 
-    parallel( lambda f: repeated_key_xor( os.path.join(patchdir, f)
-                                        , os.path.join(outdir,os.path.splitext(f)[0])
-                                        , b'hogehoge66')
-            , patches)
+def patch_one_file(f):
+    repeated_key_xor( os.path.join(patchdir, f)
+                    , os.path.join(outdir,os.path.splitext(f)[0])
+                    , b'hogehoge66')
+
+if __name__ == '__main__':
+    parallel(patch_one_file, patches)
